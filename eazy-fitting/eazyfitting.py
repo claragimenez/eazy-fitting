@@ -15,7 +15,7 @@ FUNCTIONS USED:
          
 """
 
-def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im, seg_im, mw_ebv=0.0375, plot=False, image_space=False):
+def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', seg_im='seg.fits', mw_ebv=0.0375, plot=False, image_space=False):
     
     """
     Function fitting the input target and obtain physical parameters.
@@ -53,11 +53,6 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im, seg_im, mw_ebv=
 
     np.seterr(all='ignore')
     warnings.simplefilter('ignore', category=AstropyWarning)
-
-    image = pyfits.open(im)
-    sci = np.cast[np.float32](image['SCI'].data)
-    seg = pyfits.open(seg_im)[0].data
-    tab = Table.read(catalog_file)
     
     # Parameters 
     params = {}
@@ -105,7 +100,7 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im, seg_im, mw_ebv=
         vj = -2.5*np.log10(zout['restV']/zout['restJ'])
         ssfr = zout['SFR']/zout['mass']
 
-        plt.scatter(vj[sel], uv[sel], c=np.log10(ssfr)[sel], cmap = 'Spectral',
+        plt.scatter(vj, uv, c=np.log10(ssfr), cmap = 'Spectral',
                     vmin=-13, vmax=-8, alpha=0.5)
         plt.colorbar()
         plt.xlabel(r'$(V-J)_0$'); plt.ylabel(r'$(U-V)_0$') 
@@ -113,12 +108,6 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im, seg_im, mw_ebv=
         t['x'] = (t['xmin']+t['xmax'])/2
         t['y'] = (t['ymin']+t['ymax'])/2
         
-        # sSFR
-        fig = plt.figure(figsize=(10,8))
-        plt.scatter(t['x'],t['y'],marker='.',alpha=0.5,c=np.log10(ssfr),cmap='Spectral',vmin=-12,vmax=-8)
-        ax = plt.gca()
-        ax.set_aspect(1)
-        plt.colorbar()
         # Av
         fig = plt.figure(figsize=(10,8))
         plt.scatter(t['x'],t['y'],marker='.',alpha=0.5,c=zout['Av'],cmap='Spectral_r',vmin=0,vmax=3)
@@ -126,26 +115,38 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im, seg_im, mw_ebv=
         ax.set_aspect(1)
         plt.colorbar()
         
+        # sSFR
+        fig = plt.figure(figsize=(10,8))
+        plt.scatter(t['x'],t['y'],marker='.',alpha=0.5,c=np.log10(ssfr),cmap='Spectral',vmin=-12,vmax=-8)
+        ax = plt.gca()
+        ax.set_aspect(1)
+        plt.colorbar()
+
         plt.show()
 
     if image_space:
+        image = pyfits.open(im)
+        sci = np.cast[np.float32](image['SCI'].data)
+        seg = pyfits.open(seg_im)[0].data
+        tab = Table.read(catalog_file)
+    
         # Av
         flux_Av = prep.get_seg_iso_flux(sci, seg, tab, fill=zout['Av'])
         fig = plt.figure(figsize=(10,8))
-        plt.imshow(flux_dust[sly, slx],cmap='Spectral_r')
+        plt.imshow(flux_Av,cmap='Spectral_r',origin='lower')
         ax = plt.gca()
         ax.set_aspect(1)
         plt.colorbar()
 
         primary_extn = pyfits.PrimaryHDU()
-        sci_extn = pyfits.ImageHDU(data=flux_dust,name='SCI')
+        sci_extn = pyfits.ImageHDU(data=flux_Av,name='SCI')
         hdul = pyfits.HDUList([primary_extn, sci_extn])
         hdul.writeto('Av_{0}.fits'.format(target), overwrite=True)
 
         # ssfr
         flux_ssfr = prep.get_seg_iso_flux(sci, seg, tab, fill=np.log10(ssfr))
         fig = plt.figure(figsize=(10,8))
-        plt.imshow(flux_ssfr[sly, slx],cmap='Spectral')
+        plt.imshow(flux_ssfr,cmap='Spectral',origin='lower')
         ax = plt.gca()
         ax.set_aspect(1)
         plt.colorbar()
