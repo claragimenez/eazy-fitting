@@ -20,14 +20,14 @@ FUNCTIONS USED:
 """
 
 
-def subtract_continuum(line='f673n',continuum='f814w',target='galaxy',file_name='galaxy*.fits',line_name='ha',z=0.02,plot=False):
+def subtract_continuum(line='f673n',cont='f814w',target='galaxy',file_name='galaxy*.fits',line_name='ha',z=0.02,plot=False):
     
     """
     Function for subtracting the continuum in a line emission image
 
     INPUTS:
          line: Filter into which the emission line falls.
-    continuum: Filter within which the emission line and broader continuum are contained.
+         cont: Filter within which the emission line and broader continuum are contained.
        target: The name of the target, to be used in the output files.
     file_name: General form of the file names that contain the line and continuum images.
     line_name: State 'ha' or 'pab' to subtract Balmer-alpha or Paschen-beta respectively.
@@ -47,7 +47,6 @@ def subtract_continuum(line='f673n',continuum='f814w',target='galaxy',file_name=
     from grizli import utils
     import astropy.io.fits as pyfits
     import matplotlib.pyplot as plt
-    get_ipython().run_line_magic('matplotlib', 'inline')
     
     # restframe wavelength of the emission lines to subtract
     wave_pab = 1.2822e4 
@@ -152,7 +151,7 @@ def extinction_map(line1='halpha.fits', line2='paschenbeta.fits', target="galaxy
                  
     KEYWORDS:
           PLOT: Set this keyword to produce a plot of the two-dimensional
-                continuum subtracted image.   
+                extinction map.   
     OUTPUTS:
           Fits file with the extinction map (Balmer decrement).
 
@@ -205,7 +204,7 @@ def rgb_image(target='galaxy',file_name='galaxy*.fits',blue_f='f435w',green_f='f
                  
     KEYWORDS:
           PLOT: Set this keyword to produce a plot of the two-dimensional
-                continuum subtracted image.   
+                RGB image.   
     OUTPUTS:
           Fits file with the RGB image.
 
@@ -268,8 +267,7 @@ def uvj_diagram(u='galaxy_u.fits',v='galaxy_v.fits',j='galaxy_j.fits',target='ga
            y0: Center of the y-coordinate of the slice.
         
     KEYWORDS:
-          PLOT: Set this keyword to produce a plot of the two-dimensional
-                continuum subtracted image.   
+          PLOT: Set this keyword to plot the UVJ diagram.
     OUTPUTS:
           Plot of the UVJ diagram.
     """
