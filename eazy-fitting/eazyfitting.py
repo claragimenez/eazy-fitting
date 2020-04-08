@@ -15,7 +15,7 @@ FUNCTIONS USED:
          
 """
 
-def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', seg_im='seg.fits', mw_ebv=0.0375, plot=False, image_space=False):
+def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', seg_im='seg.fits', mw_ebv=0.0375, plot=False, image_space=False, zsp=0.004556):
     
     """
     Function fitting the input target and obtain physical parameters.
@@ -56,16 +56,16 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', se
     
     # Parameters 
     params = {}
-    params['CATALOG_FILE'] = os.path.join(os.getenv('EAZYCODE'), catalog_file)
-    params['MAIN_OUTPUT_FILE'] = 'hdfn.eazypy'
+    params['CATALOG_FILE'] = catalog_file
+    params['MAIN_OUTPUT_FILE'] = target+'.eazypy'
 
     # Galactic extinction
     params['MW_EBV'] = mw_ebv 
     params['SYS_ERR'] = 0.05
-
-    params['Z_STEP'] = 0.001
-    params['Z_MIN'] = 0.005
-    params['Z_MAX'] = 0.1
+    
+    params['Z_STEP'] = 0.0002
+    params['Z_MIN'] = np.maximum(zsp - 10*params['Z_STEP']*(1+zsp), 0)
+    params['Z_MAX'] = zsp + 10*params['Z_STEP']*(1+zsp)
 
     params['PRIOR_ABZP'] = 23.9 
     params['PRIOR_FILTER'] = 241 # K
@@ -73,6 +73,7 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', se
     params['TEMPLATES_FILE'] = 'templates/fsps_full/tweak_fsps_QSF_12_v3.param'
     params['FIX_ZSPEC'] = True
 
+    #translate_file = 'zphot.translate'
     translate_file = os.path.join(os.getenv('EAZYCODE'), 'inputs/zphot.translate')
     self = eazy.photoz.PhotoZ(param_file=None, translate_file=translate_file, zeropoint_file=None, 
                           params=params, load_prior=True, load_products=False)
@@ -139,7 +140,8 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', se
         plt.colorbar()
 
         primary_extn = pyfits.PrimaryHDU()
-        sci_extn = pyfits.ImageHDU(data=flux_Av,name='SCI')
+        sci_extn = pyfits.ImageHDU(data=flux_Av,name='SCI', 
+                                   header=image[1].header)
         hdul = pyfits.HDUList([primary_extn, sci_extn])
         hdul.writeto('Av_{0}.fits'.format(target), overwrite=True)
 
@@ -152,7 +154,8 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', se
         plt.colorbar()
 
         primary_extn = pyfits.PrimaryHDU()
-        sci_extn = pyfits.ImageHDU(data=flux_ssfr,name='SCI')
+        sci_extn = pyfits.ImageHDU(data=flux_ssfr,name='SCI',
+                                   header=image[1].header)
         hdul = pyfits.HDUList([primary_extn, sci_extn])
         hdul.writeto('sSFR_{0}.fits'.format(target), overwrite=True)
         
