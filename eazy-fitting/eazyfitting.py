@@ -91,7 +91,7 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', se
     self.fit_parallel(self.idx[sample], n_proc=8)
 
     # Derived parameters (z params, RF colors, masses, SFR, etc.)
-    zout, hdu = self.standard_output(rf_pad_width=0.5, rf_max_err=2, 
+    zout, hdu = self.standard_output(rf_pad_width=np.inf, rf_max_err=2, 
                                      prior=False, beta_prior=False, extra_rf_filters=[272,273,274])
 
     # 'zout' also saved to [MAIN_OUTPUT_FILE].zout.fits
