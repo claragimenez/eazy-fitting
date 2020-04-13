@@ -15,7 +15,7 @@ FUNCTIONS USED:
          
 """
 
-def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', seg_im='seg.fits', mw_ebv=0.0375, plot=False, image_space=False, zsp=0.004556):
+def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', seg_im='seg.fits', mw_ebv=0.0375, zsp=0.004556, plot=False, image_space=False):
     
     """
     Function fitting the input target and obtain physical parameters.
@@ -28,6 +28,7 @@ def eazy_fitting(catalog_file='catalog.fits',target='galaxy',im='image.fits', se
            seg_im: Segmentation image. [optional]
            mw_ebv: Galactic extinction. Value can be found here:
                    https://irsa.ipac.caltech.edu/applications/DUST/
+              zsp: Spectroscopic redshift.
        
     KEYWORDS:
          PLOT: Set this keyword to produce a plot of the two-dimensional
